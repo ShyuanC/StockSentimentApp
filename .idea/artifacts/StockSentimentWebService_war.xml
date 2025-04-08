@@ -1,0 +1,24 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="StockSentimentWebService:war">
+    <output-path>$PROJECT_DIR$/out/artifacts/StockSentimentWebService_war</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="Project4" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: org.mongodb:mongodb-driver-sync:4.3.4" />
+          <element id="library" level="project" name="Maven: org.mongodb:bson:4.3.4" />
+          <element id="library" level="project" name="Maven: org.mongodb:mongodb-driver-core:4.3.4" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.36" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-simple:1.7.36" />
+          <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.9" />
+          <element id="library" level="project" name="Maven: javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.1" />
+          <element id="library" level="project" name="Maven: org.glassfish.web:jstl-impl:1.2" />
+          <element id="library" level="project" name="Maven: javax.servlet.jsp.jstl:jstl-api:1.2" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="Project4/web/Web" />
+    </root>
+  </artifact>
+</component>
