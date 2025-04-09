@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="exploded-war" name="StockSentimentWebService:war">
-    <output-path>$PROJECT_DIR$/out/artifacts/StockSentimentWebService_war</output-path>
+  <artifact type="exploded-war" name="ROOT.war">
+    <output-path>$PROJECT_DIR$/out/artifacts/ROOT_war</output-path>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
