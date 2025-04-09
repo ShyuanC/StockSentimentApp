@@ -16,33 +16,10 @@
 <body>
 <h1>Operations Analytics</h1>
 
-<h2>Top 5 Average Scores</h2>
-<table>
-    <tr>
-        <th>Ticker</th>
-        <th>Average Score</th>
-    </tr>
-    <c:forEach var="doc" items="${top5}">
-        <tr>
-            <td>${doc._id}</td>
-            <td>${doc.avgScore}</td>
-        </tr>
-    </c:forEach>
-</table>
-
-<h2>Bottom 5 Average Scores</h2>
-<table>
-    <tr>
-        <th>Ticker</th>
-        <th>Average Score</th>
-    </tr>
-    <c:forEach var="doc" items="${bottom5}">
-        <tr>
-            <td>${doc._id}</td>
-            <td>${doc.avgScore}</td>
-        </tr>
-    </c:forEach>
-</table>
+<h2>Top 5 Stocks (by Average Score)</h2>
+<div>${top5}</div>
+<h2>Bottom 5 Stocks (by Average Score)</h2>
+<div>${bottom5}</div>
 
 <h1>Operation Logs</h1>
 <table>

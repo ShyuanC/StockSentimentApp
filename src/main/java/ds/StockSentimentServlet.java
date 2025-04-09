@@ -2,7 +2,6 @@ package ds;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.bson.Document;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,6 +14,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import org.bson.Document;
 
 @WebServlet("/stocksentiment")
 public class StockSentimentServlet extends HttpServlet {
@@ -41,7 +41,7 @@ public class StockSentimentServlet extends HttpServlet {
             apiUrl += "?date=" + date;
         }
 
-        List<Stock> sortedStocks = new ArrayList<>();
+        List<Stock> stocksList = new ArrayList<>();
         try {
             URL url = new URL(apiUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -52,31 +52,45 @@ public class StockSentimentServlet extends HttpServlet {
 
             if (responseCode == 200) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                StringBuilder response = new StringBuilder();
+                StringBuilder responseBuilder = new StringBuilder();
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                    responseBuilder.append(inputLine);
                 }
                 in.close();
 
-                String json = response.toString();
-                log.put("api_response_data", json);
+                String json = responseBuilder.toString();
                 log.put("timestamp_response", new Date());
 
+                // Parse the raw JSON response into a List of Stock objects
                 Gson gson = new Gson();
                 Type listType = new TypeToken<List<Stock>>() {}.getType();
-                sortedStocks = gson.fromJson(json, listType);
-                sortedStocks.sort((a, b) -> Double.compare(b.sentiment_score, a.sentiment_score));
+                stocksList = gson.fromJson(json, listType);
 
+                // Instead of storing the raw list, convert each Stock into a Document so MongoDB can encode it properly
+                List<Document> stockDocs = new ArrayList<>();
+                for (Stock s : stocksList) {
+                    Document stockDoc = new Document();
+                    stockDoc.append("no_of_comments", s.no_of_comments);
+                    stockDoc.append("sentiment", s.sentiment);
+                    stockDoc.append("sentiment_score", s.sentiment_score);
+                    stockDoc.append("ticker", s.ticker);
+                    stockDocs.add(stockDoc);
+                }
+                log.put("api_response_data", stockDocs);
+
+                // Sort the stocks list in descending order based on sentiment_score
+                stocksList.sort((a, b) -> Double.compare(b.sentiment_score, a.sentiment_score));
+
+                // Create a simplified result list for returning to the client
                 List<Map<String, Object>> result = new ArrayList<>();
-                for (Stock s : sortedStocks) {
+                for (Stock s : stocksList) {
                     Map<String, Object> obj = new HashMap<>();
                     obj.put("ticker", s.ticker);
                     obj.put("sentiment", s.sentiment);
                     obj.put("score", s.sentiment_score);
                     result.add(obj);
                 }
-
                 resp.setContentType("application/json");
                 resp.getWriter().write(gson.toJson(result));
             } else {
@@ -100,7 +114,7 @@ public class StockSentimentServlet extends HttpServlet {
         dbManager.close();
     }
 
-    // Inner class representing a stock record in the API response
+    // Inner class representing a stock record from the API response
     static class Stock {
         int no_of_comments;
         String sentiment;

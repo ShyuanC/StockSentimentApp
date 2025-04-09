@@ -29,9 +29,42 @@ public class DashboardServlet extends HttpServlet {
         // Retrieve bottom 5 tickers by average score
         List<Document> bottom5 = dbManager.getAverageScoreTopN(5, false);
 
+        // Convert top5 list into a displayable HTML string in the format: TICKER (Score: VALUE)
+        StringBuilder top5Str = new StringBuilder();
+        for (Document doc : top5) {
+            String ticker = doc.getString("_id");
+            Double avgScore = null;
+            Object avgScoreObj = doc.get("avgScore");
+            if (avgScoreObj instanceof Number) {
+                avgScore = ((Number) avgScoreObj).doubleValue();
+            }
+            top5Str.append(ticker)
+                    .append(" (Score: ")
+                    .append(avgScore)
+                    .append(")")
+                    .append("<br/>");
+        }
+
+        // Convert bottom5 list into a similar HTML string
+        StringBuilder bottom5Str = new StringBuilder();
+        for (Document doc : bottom5) {
+            String ticker = doc.getString("_id");
+            Double avgScore = null;
+            Object avgScoreObj = doc.get("avgScore");
+            if (avgScoreObj instanceof Number) {
+                avgScore = ((Number) avgScoreObj).doubleValue();
+            }
+            bottom5Str.append(ticker)
+                    .append(" (Score: ")
+                    .append(avgScore)
+                    .append(")")
+                    .append("<br/>");
+        }
+
+        // Set attributes for the JSP page
         req.setAttribute("logs", logs);
-        req.setAttribute("top5", top5);
-        req.setAttribute("bottom5", bottom5);
+        req.setAttribute("top5", top5Str.toString());
+        req.setAttribute("bottom5", bottom5Str.toString());
 
         // Forward the request to the dashboard JSP page
         req.getRequestDispatcher("/WEB-INF/dashboard.jsp").forward(req, resp);

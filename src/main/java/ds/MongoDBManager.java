@@ -43,14 +43,18 @@ public class MongoDBManager {
     public List<Document> getAverageScoreTopN(int topN, boolean descending) {
         List<Document> results = new ArrayList<>();
         collection.aggregate(List.of(
-                new Document("$group", new Document("_id", "$ticker")
-                        .append("avgScore", new Document("$avg", "$score"))),
+                // Unwind the array stored in api_response_data
+                new Document("$unwind", "$api_response_data"),
+                // Group by ticker and compute average sentiment_score
+                new Document("$group", new Document("_id", "$api_response_data.ticker")
+                        .append("avgScore", new Document("$avg", "$api_response_data.sentiment_score"))),
+                // Sort by avgScore (descending if descending is true, ascending if false)
                 new Document("$sort", new Document("avgScore", descending ? -1 : 1)),
+                // Limit the number of documents to topN
                 new Document("$limit", topN)
         )).into(results);
         return results;
     }
-
     public void close() {
         if (mongoClient != null) {
             mongoClient.close();
