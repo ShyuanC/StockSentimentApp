@@ -22,14 +22,15 @@ public class DashboardServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Retrieve all log documents from MongoDB
+        // Retrieve all logs, top 5 average score, bottom 5 average score
         List<Document> logs = dbManager.findDocuments();
-        // Retrieve top 5 tickers by average score
         List<Document> top5 = dbManager.getAverageScoreTopN(5, true);
-        // Retrieve bottom 5 tickers by average score
         List<Document> bottom5 = dbManager.getAverageScoreTopN(5, false);
 
-        // Convert top5 list into a displayable HTML string in the format: TICKER (Score: VALUE)
+        // Retrieve top 5 most frequent companies (by occurrence)
+        List<Document> mostFrequent = dbManager.getMostFrequentCompaniesTopN(5);
+
+        // Format Top 5 average score list
         StringBuilder top5Str = new StringBuilder();
         for (Document doc : top5) {
             String ticker = doc.getString("_id");
@@ -45,7 +46,7 @@ public class DashboardServlet extends HttpServlet {
                     .append("<br/>");
         }
 
-        // Convert bottom5 list into a similar HTML string
+        // Format Bottom 5 average score list
         StringBuilder bottom5Str = new StringBuilder();
         for (Document doc : bottom5) {
             String ticker = doc.getString("_id");
@@ -61,10 +62,23 @@ public class DashboardServlet extends HttpServlet {
                     .append("<br/>");
         }
 
+        // Format Most Frequently Appearing Companies list
+        StringBuilder frequentStr = new StringBuilder();
+        for (Document doc : mostFrequent) {
+            String ticker = doc.getString("_id");
+            Integer count = doc.getInteger("count", 0);
+            frequentStr.append(ticker)
+                    .append(" (Count: ")
+                    .append(count)
+                    .append(")")
+                    .append("<br/>");
+        }
+
         // Set attributes for the JSP page
         req.setAttribute("logs", logs);
         req.setAttribute("top5", top5Str.toString());
         req.setAttribute("bottom5", bottom5Str.toString());
+        req.setAttribute("mostFrequent", frequentStr.toString());
 
         // Forward the request to the dashboard JSP page
         req.getRequestDispatcher("/WEB-INF/dashboard.jsp").forward(req, resp);

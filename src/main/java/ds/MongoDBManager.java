@@ -55,6 +55,23 @@ public class MongoDBManager {
         )).into(results);
         return results;
     }
+
+    public List<Document> getMostFrequentCompaniesTopN(int topN) {
+        List<Document> results = new ArrayList<>();
+        collection.aggregate(List.of(
+                // Unwind the api_response_data array
+                new Document("$unwind", "$api_response_data"),
+                // Group by the ticker and count the occurrences
+                new Document("$group", new Document("_id", "$api_response_data.ticker")
+                        .append("count", new Document("$sum", 1))),
+                // Sort by count in descending order
+                new Document("$sort", new Document("count", -1)),
+                // Limit the results to topN
+                new Document("$limit", topN)
+        )).into(results);
+        return results;
+    }
+
     public void close() {
         if (mongoClient != null) {
             mongoClient.close();
